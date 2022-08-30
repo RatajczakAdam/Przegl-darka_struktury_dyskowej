@@ -30,8 +30,15 @@ namespace Przeglądarka_struktury_dyskowej.Controllers
             return Json(data.GetValues(root));
         }
 
-        
+        [HttpPost]
+        [Route("GetDictData")]
+        public JsonResult GetDictData(string dictName)
+        {
+            return Json(data.GetValues(root+@"\"+dictName));
+        }
 
         
+
+       
     }
 }
