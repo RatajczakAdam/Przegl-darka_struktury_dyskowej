@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Przeglądarka_struktury_dyskowej.Models;
@@ -20,23 +19,23 @@ namespace Przeglądarka_struktury_dyskowej.Controllers
         // GET: DictionaryController
         [HttpGet]
         [Route("Get")]
-        public JsonResult Get()
+        public IActionResult Get()
         {
-            return Json(data.GetValues(root));
+            return Ok(data.GetValues(root));
         }
 
         [HttpPost]
         [Route("GetDictData")]
-        public JsonResult GetDictData(string dictName)
+        public IActionResult GetDictData(string dictName)
         {
-            return Json(data.GetValues(root+@"\"+dictName));
+            return Ok(data.GetValues(root+@"\"+dictName));
         }
 
         [HttpPost]
         [Route("DownloadFile")]
         public async Task<IActionResult> DownloadFile(string name, string dictName)
         {
-            if (ModelState.IsValid | String.IsNullOrEmpty(name))
+            if (ModelState.IsValid | !String.IsNullOrEmpty(name))
             {
                 try
                 {
@@ -54,5 +53,63 @@ namespace Przeglądarka_struktury_dyskowej.Controllers
             }
             return BadRequest();
         }
+        [HttpPost]
+        [Route("DeleteFile")]
+        public IActionResult DeleteFile(string name, string dictName,bool isDict)
+        {
+            if (!String.IsNullOrEmpty(name))
+            {
+                try
+                {
+                    if (!String.IsNullOrEmpty(dictName))
+                    {
+                        if (isDict)
+                        {
+                            if (String.IsNullOrEmpty(data.GetValues(root + @"\" + dictName).ToString()))
+                            {
+                                System.IO.File.Delete(root + @"\" + dictName + @"\" + name);
+                                return GetDictData(dictName);
+                            }
+                            else
+                            {
+                                return BadRequest("have file inside");
+                            }
+                        }
+                        else
+                        {
+                            System.IO.File.Delete(root + @"\" + dictName + @"\" + name);
+                            return GetDictData(dictName);
+                        }
+                    }
+                    else
+                    {
+                        if (isDict)
+                        {
+                            if (String.IsNullOrEmpty(data.GetValues(root + @"\" + dictName).ToString()))
+                            {
+                                System.IO.File.Delete(root + @"\" + name);
+                                return GetDictData(dictName);
+                            }
+                            else
+                            {
+                                return BadRequest("have file inside");
+                            }
+                        }
+                        else
+                        {
+                            System.IO.File.Delete(root + @"\" + name);
+                            return GetDictData(dictName);
+                        }
+                    }
+                }
+                catch
+                {
+                    return BadRequest();
+                }
+            }
+            return BadRequest("Must have name");
+        }
+
+        
     }
 }
