@@ -110,6 +110,32 @@ namespace Przeglądarka_struktury_dyskowej.Controllers
             return BadRequest("Must have name");
         }
 
-        
+        [HttpPost]
+        [Route("EditName")]
+        public IActionResult EditName(string name, string dictName, string newFileName)
+        {
+            if (String.IsNullOrEmpty(name)& String.IsNullOrEmpty(newFileName))
+            {
+                try
+                {
+                    if (!String.IsNullOrEmpty(dictName))
+                    {
+                        System.IO.File.Copy(root + @"\" + dictName + @"\" + name, root + @"\" + dictName + @"\" + newFileName);
+                        System.IO.File.Delete(root + @"\" + dictName + @"\" + name);
+                    }
+                    else
+                    {
+                        System.IO.File.Copy(root + @"\" + name, root + @"\" + newFileName);
+                        System.IO.File.Delete(root + @"\" + dictName + @"\" + name);
+                    }
+                    return GetDictData(dictName);
+                }
+                catch
+                {
+                    return BadRequest();
+                }
+            }
+            return BadRequest("Must have filename and new file name");
+        }
     }
 }
